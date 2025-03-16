@@ -1,4 +1,6 @@
 plugins {
+    kotlin("jvm") version "2.1.10"
+
     id("org.openrewrite.build.recipe-library-base") version "latest.release"
 
     // This uses the nexus publishing plugin to publish to the moderne-dev repository
