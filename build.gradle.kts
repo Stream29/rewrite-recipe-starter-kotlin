@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "2.1.10"
+    kotlin("jvm") version "2.0.0"
 
     id("org.openrewrite.build.recipe-library-base") version "latest.release"
 
