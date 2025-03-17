@@ -13,76 +13,108 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.yourorg;
+package com.yourorg
 
-import com.yourorg.table.ClassHierarchyReport;
-import org.junit.jupiter.api.Test;
-import org.openrewrite.test.RecipeSpec;
-import org.openrewrite.test.RewriteTest;
+import com.yourorg.table.ClassHierarchyReport
+import org.assertj.core.api.Assertions
+import org.junit.jupiter.api.Test
+import org.openrewrite.test.RecipeSpec
+import org.openrewrite.test.RewriteTest
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.openrewrite.java.Assertions.java;
-
-class ClassHierarchyTest implements RewriteTest {
-
-    @Override
-    public void defaults(RecipeSpec spec) {
-        spec.recipe(new ClassHierarchy());
+internal class ClassHierarchyTest : RewriteTest {
+    override fun defaults(spec: RecipeSpec) {
+        spec.recipe(ClassHierarchy())
     }
 
     @Test
-    void basic() {
+    fun basic() {
         rewriteRun(
-          spec -> spec.dataTable(ClassHierarchyReport.Row.class, rows -> {
-              assertThat(rows).containsExactly(new ClassHierarchyReport.Row("A", ClassHierarchyReport.Relationship.EXTENDS, "java.lang.Object"));
-          }),
-          //language=java
-          java(
-            """
+            { spec ->
+                spec.dataTable<ClassHierarchyReport.Row>(
+                    ClassHierarchyReport.Row::class.java
+                ) { rows ->
+                    Assertions.assertThat<ClassHierarchyReport.Row>(rows).containsExactly(
+                        ClassHierarchyReport.Row(
+                            "A",
+                            ClassHierarchyReport.Relationship.EXTENDS,
+                            "java.lang.Object"
+                        )
+                    )
+                }
+            },  //language=java
+            org.openrewrite.java.Assertions.java(
+                """
               class A {}
-              """
-          )
-        );
+              
+              """.trimIndent()
+            )
+        )
     }
 
     @Test
-    void bExtendsA() {
+    fun bExtendsA() {
         rewriteRun(
-          spec -> spec.dataTable(ClassHierarchyReport.Row.class, rows -> {
-              assertThat(rows).containsExactly(
-                new ClassHierarchyReport.Row("A", ClassHierarchyReport.Relationship.EXTENDS, "java.lang.Object"),
-                new ClassHierarchyReport.Row("B", ClassHierarchyReport.Relationship.EXTENDS, "A"));
-          }),
-          //language=java
-          java(
-            """
+            { spec ->
+                spec.dataTable<ClassHierarchyReport.Row>(
+                    ClassHierarchyReport.Row::class.java
+                ) { rows ->
+                    Assertions.assertThat<ClassHierarchyReport.Row>(rows).containsExactly(
+                        ClassHierarchyReport.Row(
+                            "A",
+                            ClassHierarchyReport.Relationship.EXTENDS,
+                            "java.lang.Object"
+                        ),
+                        ClassHierarchyReport.Row(
+                            "B",
+                            ClassHierarchyReport.Relationship.EXTENDS,
+                            "A"
+                        )
+                    )
+                }
+            },  //language=java
+            org.openrewrite.java.Assertions.java(
+                """
               class A {}
-              """
-          ),
-          //language=java
-          java(
-            """
+              
+              """.trimIndent()
+            ),  //language=java
+            org.openrewrite.java.Assertions.java(
+                """
               class B extends A {}
-              """
-          )
-        );
+              
+              """.trimIndent()
+            )
+        )
     }
 
     @Test
-    void interfaceRelationship() {
+    fun interfaceRelationship() {
         rewriteRun(
-          spec -> spec.dataTable(ClassHierarchyReport.Row.class, rows -> {
-              assertThat(rows).containsExactly(
-                new ClassHierarchyReport.Row("A", ClassHierarchyReport.Relationship.EXTENDS, "java.lang.Object"),
-                new ClassHierarchyReport.Row("A", ClassHierarchyReport.Relationship.IMPLEMENTS, "java.io.Serializable"));
-          }),
-          // language=java
-          java(
-            """
+            { spec ->
+                spec.dataTable<ClassHierarchyReport.Row>(
+                    ClassHierarchyReport.Row::class.java
+                ) { rows ->
+                    Assertions.assertThat<ClassHierarchyReport.Row>(rows).containsExactly(
+                        ClassHierarchyReport.Row(
+                            "A",
+                            ClassHierarchyReport.Relationship.EXTENDS,
+                            "java.lang.Object"
+                        ),
+                        ClassHierarchyReport.Row(
+                            "A",
+                            ClassHierarchyReport.Relationship.IMPLEMENTS,
+                            "java.io.Serializable"
+                        )
+                    )
+                }
+            },  // language=java
+            org.openrewrite.java.Assertions.java(
+                """
               import java.io.Serializable;
               class A implements Serializable {}
-              """
-          )
-        );
+              
+              """.trimIndent()
+            )
+        )
     }
 }

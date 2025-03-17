@@ -13,32 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.yourorg;
+package com.yourorg
 
-import org.junit.jupiter.api.Test;
-import org.openrewrite.DocumentExample;
-import org.openrewrite.java.JavaParser;
-import org.openrewrite.test.RecipeSpec;
-import org.openrewrite.test.RewriteTest;
+import org.junit.jupiter.api.Test
+import org.openrewrite.DocumentExample
+import org.openrewrite.java.Assertions
+import org.openrewrite.java.JavaParser
+import org.openrewrite.test.RecipeSpec
+import org.openrewrite.test.RewriteTest
 
-import static org.openrewrite.java.Assertions.java;
-
-class AssertEqualsToAssertThatTest implements RewriteTest {
-
-    @Override
-    public void defaults(RecipeSpec spec) {
-        spec.recipe(new AssertEqualsToAssertThat())
-          .parser(JavaParser.fromJavaVersion()
-            .classpath("junit-jupiter-api"));
+internal class AssertEqualsToAssertThatTest : RewriteTest {
+    override fun defaults(spec: RecipeSpec) {
+        spec.recipe(AssertEqualsToAssertThat())
+            .parser(
+                JavaParser.fromJavaVersion()
+                    .classpath("junit-jupiter-api")
+            )
     }
 
     @DocumentExample
     @Test
-    void twoArgument() {
-        rewriteRun(
-          //language=java
-          java(
-            """
+    fun twoArgument() {
+        rewriteRun( //language=java
+            Assertions.java(
+                """
               import org.junit.jupiter.api.Assertions;
               
               class A {
@@ -46,8 +44,9 @@ class AssertEqualsToAssertThatTest implements RewriteTest {
                       Assertions.assertEquals(1, 2);
                   }
               }
-              """,
-            """
+              
+              """.trimIndent(),
+                """
               import org.assertj.core.api.Assertions;
               
               class A {
@@ -55,17 +54,17 @@ class AssertEqualsToAssertThatTest implements RewriteTest {
                       Assertions.assertThat(2).isEqualTo(1);
                   }
               }
-              """
-          )
-        );
+              
+              """.trimIndent()
+            )
+        )
     }
 
     @Test
-    void withDescription() {
-        rewriteRun(
-          //language=java
-          java(
-            """
+    fun withDescription() {
+        rewriteRun( //language=java
+            Assertions.java(
+                """
               import org.junit.jupiter.api.Assertions;
               
               class A {
@@ -73,8 +72,9 @@ class AssertEqualsToAssertThatTest implements RewriteTest {
                       Assertions.assertEquals(1, 2, "one equals two, everyone knows that");
                   }
               }
-              """,
-            """
+              
+              """.trimIndent(),
+                """
               import org.assertj.core.api.Assertions;
               
               class A {
@@ -82,8 +82,9 @@ class AssertEqualsToAssertThatTest implements RewriteTest {
                       Assertions.assertThat(2).as("one equals two, everyone knows that").isEqualTo(1);
                   }
               }
-              """
-          )
-        );
+              
+              """.trimIndent()
+            )
+        )
     }
 }

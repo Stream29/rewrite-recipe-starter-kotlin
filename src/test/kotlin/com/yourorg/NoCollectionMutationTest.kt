@@ -13,32 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.yourorg;
+package com.yourorg
 
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-import org.openrewrite.DocumentExample;
-import org.openrewrite.java.JavaParser;
-import org.openrewrite.test.RecipeSpec;
-import org.openrewrite.test.RewriteTest;
+import org.junit.jupiter.api.Disabled
+import org.junit.jupiter.api.Test
+import org.openrewrite.DocumentExample
+import org.openrewrite.java.Assertions
+import org.openrewrite.java.JavaParser
+import org.openrewrite.test.RecipeSpec
+import org.openrewrite.test.RewriteTest
 
-import static org.openrewrite.java.Assertions.java;
-
-
-@SuppressWarnings({"NullableProblems", "WriteOnlyObject", "ResultOfMethodCallIgnored", "DataFlowIssue"})
-class NoCollectionMutationTest implements RewriteTest {
-
-    @Override
-    public void defaults(RecipeSpec spec) {
-        spec.recipe(new NoCollectionMutation()).parser(JavaParser.fromJavaVersion().classpath("rewrite-core", "rewrite-java"));
+internal class NoCollectionMutationTest : RewriteTest {
+    override fun defaults(spec: RecipeSpec) {
+        spec.recipe(NoCollectionMutation())
+            .parser(JavaParser.fromJavaVersion().classpath("rewrite-core", "rewrite-java"))
     }
 
     @Test
-    void nonMutationIsOkay() {
-        rewriteRun(
-          //language=java
-          java(
-            """
+    fun nonMutationIsOkay() {
+        rewriteRun( //language=java
+            Assertions.java(
+                """
               import org.openrewrite.ExecutionContext;
               import org.openrewrite.java.JavaIsoVisitor;
               import org.openrewrite.java.tree.J;
@@ -53,17 +48,18 @@ class NoCollectionMutationTest implements RewriteTest {
                       return method;
                   }
               }
-              """)
-        );
+              
+              """.trimIndent()
+            )
+        )
     }
 
     @DocumentExample
     @Test
-    void inlineMutation() {
-        rewriteRun(
-          //language=java
-          java(
-            """
+    fun inlineMutation() {
+        rewriteRun( //language=java
+            Assertions.java(
+                """
               import org.openrewrite.ExecutionContext;
               import org.openrewrite.java.JavaIsoVisitor;
               import org.openrewrite.java.tree.J;
@@ -75,8 +71,9 @@ class NoCollectionMutationTest implements RewriteTest {
                       return method;
                   }
               }
-              """,
-            """
+              
+              """.trimIndent(),
+                """
               import org.openrewrite.ExecutionContext;
               import org.openrewrite.java.JavaIsoVisitor;
               import org.openrewrite.java.tree.J;
@@ -90,16 +87,17 @@ class NoCollectionMutationTest implements RewriteTest {
                       return method;
                   }
               }
-              """)
-        );
+              
+              """.trimIndent()
+            )
+        )
     }
 
     @Test
-    void subsequentMutation() {
-        rewriteRun(
-          //language=java
-          java(
-            """
+    fun subsequentMutation() {
+        rewriteRun( //language=java
+            Assertions.java(
+                """
               import org.openrewrite.ExecutionContext;
               import org.openrewrite.java.JavaIsoVisitor;
               import org.openrewrite.java.tree.Expression;
@@ -117,8 +115,9 @@ class NoCollectionMutationTest implements RewriteTest {
                       return method;
                   }
               }
-              """,
-            """
+              
+              """.trimIndent(),
+                """
               import org.openrewrite.ExecutionContext;
               import org.openrewrite.java.JavaIsoVisitor;
               import org.openrewrite.java.tree.Expression;
@@ -137,17 +136,18 @@ class NoCollectionMutationTest implements RewriteTest {
                       return method;
                   }
               }
-              """)
-        );
+              
+              """.trimIndent()
+            )
+        )
     }
 
     @Disabled("Local dataflow is not capable of following what happens to a variable passed into a function")
     @Test
-    void mutationInFunction() {
-        rewriteRun(
-          //language=java
-          java(
-            """
+    fun mutationInFunction() {
+        rewriteRun( //language=java
+            Assertions.java(
+                """
               import org.openrewrite.ExecutionContext;
               import org.openrewrite.java.JavaIsoVisitor;
               import org.openrewrite.java.tree.Expression;
@@ -169,8 +169,9 @@ class NoCollectionMutationTest implements RewriteTest {
                       }
                   }
               }
-              """,
-            """
+              
+              """.trimIndent(),
+                """
               import org.openrewrite.ExecutionContext;
               import org.openrewrite.java.JavaIsoVisitor;
               import org.openrewrite.java.tree.Expression;
@@ -193,16 +194,17 @@ class NoCollectionMutationTest implements RewriteTest {
                       }
                   }
               }
-              """)
-        );
+              
+              """.trimIndent()
+            )
+        )
     }
 
     @Test
-    void listUtilsIsOkay() {
-        rewriteRun(
-          //language=java
-          java(
-            """
+    fun listUtilsIsOkay() {
+        rewriteRun( //language=java
+            Assertions.java(
+                """
               import org.openrewrite.ExecutionContext;
               import org.openrewrite.java.JavaIsoVisitor;
               import org.openrewrite.java.tree.J;
@@ -215,7 +217,9 @@ class NoCollectionMutationTest implements RewriteTest {
                       return method;
                   }
               }
-              """)
-        );
+              
+              """.trimIndent()
+            )
+        )
     }
 }
