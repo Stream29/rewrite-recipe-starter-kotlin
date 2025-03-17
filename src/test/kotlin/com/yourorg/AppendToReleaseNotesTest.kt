@@ -13,55 +13,51 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.yourorg;
+package com.yourorg
 
-import org.junit.jupiter.api.Test;
-import org.openrewrite.DocumentExample;
-import org.openrewrite.test.RecipeSpec;
-import org.openrewrite.test.RewriteTest;
+import org.junit.jupiter.api.Test
+import org.openrewrite.DocumentExample
+import org.openrewrite.test.RecipeSpec
+import org.openrewrite.test.RewriteTest
+import org.openrewrite.test.SourceSpecs
+import java.nio.file.Paths
 
-import java.nio.file.Paths;
-
-import static org.openrewrite.test.SourceSpecs.text;
-
-class AppendToReleaseNotesTest implements RewriteTest {
-    @Override
-    public void defaults(RecipeSpec spec) {
-        spec.recipe(new AppendToReleaseNotes("Hello world"));
+internal class AppendToReleaseNotesTest : RewriteTest {
+    override fun defaults(spec: RecipeSpec) {
+        spec.recipe(AppendToReleaseNotes("Hello world"))
     }
 
     @Test
-    void createNewReleaseNotes() {
+    fun createNewReleaseNotes() {
         // Notice how the before text is null, indicating that the file does not exist yet.
         // The after text is the content of the file after the recipe is applied.
         rewriteRun(
-          text(
-            null,
-            """
+            SourceSpecs.text(
+                null,
+                """
               Hello world
-              """,
-            spec -> spec.path(Paths.get("RELEASE.md")
-            )
-          )
-        );
+              
+              """.trimIndent()
+            ) { it.path(Paths.get("RELEASE.md")) }
+        )
     }
 
     @DocumentExample
     @Test
-    void editExistingReleaseNotes() {
+    fun editExistingReleaseNotes() {
         // When the file does already exist, we assert the content is modified as expected.
         rewriteRun(
-          text(
-            """
+            SourceSpecs.text(
+                """
               You say goodbye, I say
-              """,
-            """
+              
+              """.trimIndent(),
+                """
               You say goodbye, I say
               Hello world
-              """,
-            spec -> spec.path(Paths.get("RELEASE.md")
-            )
-          )
-        );
+              
+              """.trimIndent()
+            ) { it.path(Paths.get("RELEASE.md")) }
+        )
     }
 }
