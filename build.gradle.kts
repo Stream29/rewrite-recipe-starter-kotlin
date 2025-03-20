@@ -22,6 +22,10 @@ plugins {
 group = "com.yourorg"
 description = "Rewrite recipes."
 
+kotlin {
+    jvmToolchain(17)
+}
+
 dependencies {
     // The bom version can also be set to a specific version
     // https://github.com/openrewrite/rewrite-recipe-bom/releases
@@ -34,9 +38,6 @@ dependencies {
     implementation("org.assertj:assertj-core:latest.release")
     runtimeOnly("org.openrewrite:rewrite-java-17")
 
-    // Refaster style recipes need the rewrite-templating annotation processor and dependency for generated recipes
-    // https://github.com/openrewrite/rewrite-templating/releases
-    annotationProcessor("org.openrewrite:rewrite-templating:latest.release")
     implementation("org.openrewrite:rewrite-templating")
     // The `@BeforeTemplate` and `@AfterTemplate` annotations are needed for refaster style recipes
     compileOnly("com.google.errorprone:error_prone_core:latest.release") {
