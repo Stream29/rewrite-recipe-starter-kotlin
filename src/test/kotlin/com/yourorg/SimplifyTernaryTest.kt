@@ -13,31 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.yourorg;
+package com.yourorg
 
-import org.junit.jupiter.api.Test;
-import org.openrewrite.DocumentExample;
-import org.openrewrite.test.RecipeSpec;
-import org.openrewrite.test.RewriteTest;
-
-import static org.openrewrite.java.Assertions.java;
+import org.junit.jupiter.api.Test
+import org.openrewrite.DocumentExample
+import org.openrewrite.java.Assertions
+import org.openrewrite.test.RecipeSpec
+import org.openrewrite.test.RewriteTest
 
 // This is a test for the SimplifyTernary recipe, as an example of how to write a test for a Refaster style recipe.
-class SimplifyTernaryTest implements RewriteTest {
-
-    @Override
-    public void defaults(RecipeSpec spec) {
+internal class SimplifyTernaryTest : RewriteTest {
+    override fun defaults(spec: RecipeSpec) {
         // Note that we instantiate a generated class here, with `Recipes` appended to the Refaster class name
-        spec.recipe(new SimplifyTernaryRecipes());
+        spec.recipe(SimplifyTernaryRecipes())
     }
 
     @Test
     @DocumentExample
-    void simplified() {
-        rewriteRun(
-          //language=java
-          java(
-            """
+    fun simplified() {
+        rewriteRun( //language=java
+            Assertions.java(
+                """
               class Test {
                   boolean trueCondition1 = true ? true : false;
                   boolean trueCondition2 = false ? false : true;
@@ -62,8 +58,9 @@ class SimplifyTernaryTest implements RewriteTest {
                     return true;
                   }
               }
-              """,
-            """
+              
+              """.trimIndent(),
+                """
               class Test {
                   boolean trueCondition1 = true;
                   boolean trueCondition2 = true;
@@ -88,18 +85,18 @@ class SimplifyTernaryTest implements RewriteTest {
                     return true;
                   }
               }
-              """
-          )
-        );
+              
+              """.trimIndent()
+            )
+        )
     }
 
     // It's good practice to also include a test that verifies that the recipe doesn't change anything when it shouldn't.
     @Test
-    void unchanged() {
-        rewriteRun(
-          //language=java
-          java(
-            """
+    fun unchanged() {
+        rewriteRun( //language=java
+            Assertions.java(
+                """
               class Test {
                   boolean unchanged1 = booleanExpression() ? booleanExpression() : !booleanExpression();
                   boolean unchanged2 = booleanExpression() ? true : !booleanExpression();
@@ -109,8 +106,9 @@ class SimplifyTernaryTest implements RewriteTest {
                     return true;
                   }
               }
-              """
-          )
-        );
+              
+              """.trimIndent()
+            )
+        )
     }
 }

@@ -13,32 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.yourorg;
+package com.yourorg
 
-import org.junit.jupiter.api.Test;
-import org.openrewrite.DocumentExample;
-import org.openrewrite.java.JavaParser;
-import org.openrewrite.test.RecipeSpec;
-import org.openrewrite.test.RewriteTest;
+import org.junit.jupiter.api.Test
+import org.openrewrite.DocumentExample
+import org.openrewrite.java.Assertions
+import org.openrewrite.java.JavaParser
+import org.openrewrite.test.RecipeSpec
+import org.openrewrite.test.RewriteTest
 
-import static org.openrewrite.java.Assertions.java;
-
-class UseApacheStringUtilsTest implements RewriteTest {
-    @Override
-    public void defaults(RecipeSpec spec) {
-        spec.recipeFromResources("com.yourorg.UseApacheStringUtils")
-          // Notice how we only pass in `spring-core` as the classpath, but not `commons-lang3`.
-          // That's because we only need dependencies to compile the before code blocks, not the after code blocks.
-          .parser(JavaParser.fromJavaVersion().classpath("spring-core"));
+internal class UseApacheStringUtilsTest : RewriteTest {
+    override fun defaults(spec: RecipeSpec) {
+        spec.recipeFromResources("com.yourorg.UseApacheStringUtils") // Notice how we only pass in `spring-core` as the classpath, but not `commons-lang3`.
+            // That's because we only need dependencies to compile the before code blocks, not the after code blocks.
+            .parser(JavaParser.fromJavaVersion().classpath("spring-core"))
     }
 
     @DocumentExample
     @Test
-    void replacesStringEquals() {
-        rewriteRun(
-          //language=java
-          java(
-            """
+    fun replacesStringEquals() {
+        rewriteRun( //language=java
+            Assertions.java(
+                """
               import org.springframework.util.StringUtils;
 
               class A {
@@ -46,8 +42,9 @@ class UseApacheStringUtilsTest implements RewriteTest {
                       return StringUtils.containsWhitespace(s);
                   }
               }
-              """,
-            """
+              
+              """.trimIndent(),
+                """
               import org.apache.commons.lang3.StringUtils;
 
               class A {
@@ -55,19 +52,22 @@ class UseApacheStringUtilsTest implements RewriteTest {
                       return StringUtils.containsWhitespace(s);
                   }
               }
-              """
-          )
-        );
+              
+              """.trimIndent()
+            )
+        )
     }
 
     @Test
-    void noChangeWhenAlreadyUsingCommonsLang3() {
-        rewriteRun(
-          // By passing in `commons-lang3` as the classpath here, we ensure that the before code block compiles.
-          spec -> spec.parser(JavaParser.fromJavaVersion().classpath("commons-lang3")),
-          //language=java
-          java(
-            """
+    fun noChangeWhenAlreadyUsingCommonsLang3() {
+        rewriteRun( // By passing in `commons-lang3` as the classpath here, we ensure that the before code block compiles.
+            { spec ->
+                spec.parser(
+                    JavaParser.fromJavaVersion().classpath("commons-lang3")
+                )
+            },  //language=java
+            Assertions.java(
+                """
               import org.apache.commons.lang3.StringUtils;
 
               class A {
@@ -75,9 +75,9 @@ class UseApacheStringUtilsTest implements RewriteTest {
                       return StringUtils.containsWhitespace(s);
                   }
               }
-              """
-            // The absence of a second argument to `java` indicates that the after code block should be the same as the before code block.
-          )
-        );
+              
+              """.trimIndent() // The absence of a second argument to `java` indicates that the after code block should be the same as the before code block.
+            )
+        )
     }
 }

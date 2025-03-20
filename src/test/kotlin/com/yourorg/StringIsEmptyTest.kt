@@ -13,22 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.yourorg;
+package com.yourorg
 
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-import org.openrewrite.DocumentExample;
-import org.openrewrite.Recipe;
-import org.openrewrite.test.RecipeSpec;
-import org.openrewrite.test.RewriteTest;
-
-import static org.openrewrite.java.Assertions.java;
+import org.junit.jupiter.api.Disabled
+import org.junit.jupiter.api.Test
+import org.openrewrite.DocumentExample
+import org.openrewrite.Recipe
+import org.openrewrite.java.Assertions
+import org.openrewrite.test.RecipeSpec
+import org.openrewrite.test.RewriteTest
 
 @Disabled("Remove this annotation to run the tests once you implement the recipe")
-class StringIsEmptyTest implements RewriteTest {
-
-    @Override
-    public void defaults(RecipeSpec spec) {
+internal class StringIsEmptyTest : RewriteTest {
+    override fun defaults(spec: RecipeSpec) {
         // Note that we instantiate a generated class here, with `Recipes` appended to the Refaster class name
         // You might need to trigger an explicit build of your project to generate this class with Ctrl + F9
 
@@ -38,14 +35,13 @@ class StringIsEmptyTest implements RewriteTest {
 
     @DocumentExample
     @Test
-    void standardizeStringIsEmpty() {
+    fun standardizeStringIsEmpty() {
         // Notice how we pass in both the "before" and "after" code snippets
         // This indicates that we expect the recipe to transform the "before" code snippet into the "after" code snippet
         // If the recipe does not do this, the test will fail, and a diff will be shown
-        rewriteRun(
-          //language=java
-          java(
-            """
+        rewriteRun( //language=java
+            Assertions.java(
+                """
               class A {
                   void test(String s, boolean b) {
                       b = s.length() == 0;
@@ -57,8 +53,9 @@ class StringIsEmptyTest implements RewriteTest {
                       b = s.isEmpty();
                   }
               }
-              """,
-            """
+              
+              """.trimIndent(),
+                """
               class A {
                   void test(String s, boolean b) {
                       b = s.isEmpty();
@@ -70,20 +67,20 @@ class StringIsEmptyTest implements RewriteTest {
                       b = s.isEmpty();
                   }
               }
-              """
-          )
-        );
+              
+              """.trimIndent()
+            )
+        )
     }
 
     @Test
-    void showStringTypeMatchAndSimplification() {
+    fun showStringTypeMatchAndSimplification() {
         // Notice how the recipe will match anything that is of type String, not just local variables
         // Take a closer look at the last two replacements to `true` and `false`.
         // Open up the generated recipe and see if you can work out why those are replaced with booleans!
-        rewriteRun(
-          //language=java
-          java(
-            """
+        rewriteRun( //language=java
+            Assertions.java(
+                """
               class A {
                   String field;
               
@@ -99,8 +96,9 @@ class StringIsEmptyTest implements RewriteTest {
                       boolean bool5 = "literal".length() == 0;
                   }
               }
-              """,
-            """
+              
+              """.trimIndent(),
+                """
               class A {
                   String field;
               
@@ -116,55 +114,56 @@ class StringIsEmptyTest implements RewriteTest {
                       boolean bool5 = false;
                   }
               }
-              """
-          )
-        );
+              
+              """.trimIndent()
+            )
+        )
     }
 
     @Test
-    void doNothingForStringIsEmpty() {
+    fun doNothingForStringIsEmpty() {
         // Notice how we only pass in the "before" code snippet, and not the "after" code snippet
         // That indicates that we expect the recipe to do nothing in this case, and will fail if it does anything
-        rewriteRun(
-          //language=java
-          java(
-            """
+        rewriteRun( //language=java
+            Assertions.java(
+                """
               class A {
                   void test(String s, boolean b) {
                       b = s.isEmpty();
                   }
               }
-              """
-          )
-        );
+              
+              """.trimIndent()
+            )
+        )
     }
 
     @Test
-    void doNothingForCharSequence() {
+    fun doNothingForCharSequence() {
         // When a different type is used, the recipe should do nothing
         // See if you can modify the recipe to handle CharSequence as well, or create a separate recipe for it
-        rewriteRun(
-          //language=java
-          java(
-            """
+        rewriteRun( //language=java
+            Assertions.java(
+                """
               class A {
                   void test(CharSequence s, boolean b) {
                       b = s.length() == 0;
                   }
               }
-              """
-          )
-        );
+              
+              """.trimIndent()
+            )
+        )
     }
 
     @Test
-    void recipeDocumentation() {
+    fun recipeDocumentation() {
         // This is a test to validate the correctness of the documentation in the recipe
         // By default you get generated documentation, but you can customize it through the RecipeDescriptor annotation
-        Recipe recipe = null; // TODO: = new StringIsEmptyRecipe();
-        String displayName = recipe.getDisplayName();
-        String description = recipe.getDescription();
-        assert "Standardize empty String checks".equals(displayName) : displayName;
-        assert "Replace calls to `String.length() == 0` with `String.isEmpty()`.".equals(description) : description;
+        val recipe: Recipe? = null // TODO: = new StringIsEmptyRecipe();
+        val displayName = recipe!!.getDisplayName()
+        val description = recipe.getDescription()
+        assert("Standardize empty String checks" == displayName) { displayName }
+        assert("Replace calls to `String.length() == 0` with `String.isEmpty()`." == description) { description }
     }
 }

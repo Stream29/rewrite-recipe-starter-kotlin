@@ -13,26 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.yourorg;
+package com.yourorg
 
-import org.junit.jupiter.api.Test;
-import org.openrewrite.DocumentExample;
-import org.openrewrite.test.RewriteTest;
+import org.junit.jupiter.api.Test
+import org.openrewrite.DocumentExample
+import org.openrewrite.test.RecipeSpec
+import org.openrewrite.test.RewriteTest
+import org.openrewrite.test.SourceSpec
+import org.openrewrite.yaml.Assertions
+import org.openrewrite.yaml.tree.Yaml
+import java.nio.file.Paths
+import java.util.function.Consumer
 
-import java.nio.file.Paths;
-
-import static org.openrewrite.yaml.Assertions.yaml;
-
-class UpdateConcoursePipelineTest implements RewriteTest {
-
+internal class UpdateConcoursePipelineTest : RewriteTest {
     @DocumentExample
     @Test
-    void updateTagFilter() {
+    fun updateTagFilter() {
         rewriteRun(
-          spec -> spec.recipe(new UpdateConcoursePipeline("8.2.0")),
-          //language=yaml
-          yaml(
-            """
+            { spec: RecipeSpec -> spec.recipe(UpdateConcoursePipeline("8.2.0")) },  //language=yaml
+            Assertions.yaml(
+                """
               ---
               resources:
                 - name: tasks
@@ -40,8 +40,9 @@ class UpdateConcoursePipelineTest implements RewriteTest {
                   source:
                     uri: git@github.com:Example/concourse-tasks.git
                     tag_filter: 8.1.0
-              """,
-            """
+              
+              """.trimIndent(),
+                """
               ---
               resources:
                 - name: tasks
@@ -49,9 +50,9 @@ class UpdateConcoursePipelineTest implements RewriteTest {
                   source:
                     uri: git@github.com:Example/concourse-tasks.git
                     tag_filter: 8.2.0
-                """,
-            spec -> spec.path(Paths.get("ci/pipeline.yml"))
-          )
-        );
+                
+                """.trimIndent()) { spec -> spec.path(Paths.get("ci/pipeline.yml")) }
+
+        )
     }
 }
