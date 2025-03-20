@@ -13,80 +13,76 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.yourorg;
+package com.yourorg
 
-import lombok.EqualsAndHashCode;
-import lombok.Value;
-import org.openrewrite.*;
-import org.openrewrite.yaml.ChangePropertyValue;
-import org.openrewrite.yaml.YamlIsoVisitor;
-import org.openrewrite.yaml.tree.Yaml;
+import lombok.EqualsAndHashCode
+import lombok.Value
+import org.openrewrite.*
+import org.openrewrite.yaml.ChangePropertyValue
+import org.openrewrite.yaml.YamlIsoVisitor
+import org.openrewrite.yaml.tree.Yaml
 
 @Value
 @EqualsAndHashCode(callSuper = false)
-public class UpdateConcoursePipeline extends Recipe {
-    @Override
-    public String getDisplayName() {
-        return "Update concourse pipeline";
+class UpdateConcoursePipeline(
+    @Option(displayName = "New tag filter version", description = "tag filter version.", example = "8.2.0")
+    internal var version: String? = null
+) : Recipe() {
+    override fun getDisplayName(): String {
+        return "Update concourse pipeline"
     }
 
-    @Override
-    public String getDescription() {
-        return "Update the tag filter on concourse pipelines.";
+    override fun getDescription(): String {
+        return "Update the tag filter on concourse pipelines."
     }
 
-    @Option(displayName = "New tag filter version",
-            description = "tag filter version.",
-            example = "8.2.0")
-    String version;
 
-    @Override
-    public TreeVisitor<?, ExecutionContext> getVisitor() {
+
+    override fun getVisitor(): TreeVisitor<*, ExecutionContext> {
         return Preconditions.check(
-                Preconditions.or(
-                        new FindSourceFiles("ci/pipeline*.yml").getVisitor(),
-                        new FindSourceFiles("ci/pipeline*.yaml").getVisitor()),
-                new YamlIsoVisitor<ExecutionContext>() {
-
-                    @Override
-                    public Yaml.Mapping.Entry visitMappingEntry(Yaml.Mapping.Entry entry, ExecutionContext ctx) {
-                        Yaml.Mapping.Entry e = super.visitMappingEntry(entry, ctx);
-                        if ("source".equals(e.getKey().getValue())) {
-                            Yaml.Block value = e.getValue();
-                            if (!(value instanceof Yaml.Mapping)) {
-                                return e;
-                            }
-                            Yaml.Mapping mapping = (Yaml.Mapping) value;
-                            Yaml.Mapping.Entry uriEntry = null;
-                            Yaml.Mapping.Entry tagFilter = null;
-                            for (Yaml.Mapping.Entry mappingEntry : mapping.getEntries()) {
-                                if ("uri".equals(mappingEntry.getKey().getValue())) {
-                                    uriEntry = mappingEntry;
-                                } else if ("tag_filter".equals(mappingEntry.getKey().getValue())) {
-                                    tagFilter = mappingEntry;
-                                }
-                            }
-                            if (uriEntry == null || tagFilter == null) {
-                                return e;
-                            }
-                            if (!(uriEntry.getValue() instanceof Yaml.Scalar) || !(tagFilter.getValue() instanceof Yaml.Scalar)) {
-                                return e;
-                            }
-                            Yaml.Scalar uriValue = (Yaml.Scalar) uriEntry.getValue();
-                            if (!uriValue.getValue().contains(".git")) {
-                                return e;
-                            }
-                            Yaml.Scalar tagFilterValue = (Yaml.Scalar) tagFilter.getValue();
-                            if (version.equals(tagFilterValue.getValue())) {
-                                return e;
-                            }
-                            return (Yaml.Mapping.Entry) new ChangePropertyValue("source.tag_filter", version, null, null, null, null)
-                                    .getVisitor()
-                                    .visitNonNull(e, ctx);
+            Preconditions.or(
+                FindSourceFiles("ci/pipeline*.yml").visitor,
+                FindSourceFiles("ci/pipeline*.yaml").visitor
+            ),
+            object : YamlIsoVisitor<ExecutionContext>() {
+                override fun visitMappingEntry(entry: Yaml.Mapping.Entry, ctx: ExecutionContext): Yaml.Mapping.Entry {
+                    val e = super.visitMappingEntry(entry, ctx)
+                    if ("source" == e.getKey().getValue()) {
+                        val value = e.getValue()
+                        if (value !is Yaml.Mapping) {
+                            return e
                         }
-                        return e;
+                        val mapping = value
+                        var uriEntry: Yaml.Mapping.Entry? = null
+                        var tagFilter: Yaml.Mapping.Entry? = null
+                        for (mappingEntry in mapping.getEntries()) {
+                            if ("uri" == mappingEntry.getKey().getValue()) {
+                                uriEntry = mappingEntry
+                            } else if ("tag_filter" == mappingEntry.getKey().getValue()) {
+                                tagFilter = mappingEntry
+                            }
+                        }
+                        if (uriEntry == null || tagFilter == null) {
+                            return e
+                        }
+                        if (uriEntry.getValue() !is Yaml.Scalar || tagFilter.getValue() !is Yaml.Scalar) {
+                            return e
+                        }
+                        val uriValue = uriEntry.getValue() as Yaml.Scalar
+                        if (!uriValue.getValue().contains(".git")) {
+                            return e
+                        }
+                        val tagFilterValue = tagFilter.getValue() as Yaml.Scalar
+                        if (version == tagFilterValue.getValue()) {
+                            return e
+                        }
+                        return ChangePropertyValue("source.tag_filter", version, null, null, null, null)
+                            .visitor
+                            .visitNonNull(e, ctx) as Yaml.Mapping.Entry
                     }
+                    return e
                 }
-        );
+            }
+        )
     }
 }
